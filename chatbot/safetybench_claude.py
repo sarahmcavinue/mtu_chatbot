@@ -151,17 +151,15 @@ def process_pdf_documents(urls, download_directory, embedding_model):
         else:
             raise error
     return docs
-
 urls = [
     "https://www.mycit.ie/contentfiles/careers/choosing%20a%20postgraduate%20course.pdf",
     "https://cieem.net/wp-content/uploads/2019/02/Finding-the-Right-Course-Postgraduate-Study.pdf",
     "https://www.cit.ie/contentfiles/postgrad/Final-Postgraduate-Handbook.pdf",
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\earnings-4.pdf",#earnings
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\Fictional_toxic_postgrad_courses-1-1.pdf", #toxic
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\List of Lecturers for Post graduate Courses at MTU-1.pdf", #lecturers
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\Reviews of career jobs.pdf", #career paths
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\MTU Student Course Reviews.pdf",
-    
+    "chatbot/data/earnings-4.pdf", # earnings
+    "chatbot/data/Fictional_toxic_postgrad_courses-1-1.pdf", # toxic
+    "chatbot/data/List of Lecturers for Post graduate Courses at MTU-1.pdf", # lecturers
+    "chatbot/data/Reviews of career jobs.pdf", # career paths
+    "chatbot/data/MTU Student Course Reviews.pdf",
 ]
 download_directory = "test"
 process_pdf_documents(urls, download_directory, embedding_model)

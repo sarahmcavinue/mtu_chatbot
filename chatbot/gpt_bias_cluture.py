@@ -1,48 +1,33 @@
-from langchain.llms.bedrock import Bedrock
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
-import os
-import openai
-import time
-import warnings
-warnings.filterwarnings('ignore')
-from langchain.embeddings import BedrockEmbeddings
-from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
+
 import numpy as np
+import os
+import requests
+import uuid
+import warnings
+
+from clean_data import CleanData
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import PromptTemplate
+from langchain.smith import RunEvalConfig, run_on_dataset
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_community.vectorstores import FAISS
-from langchain.prompts import PromptTemplate
-import streamlit as st
-from clean_data import CleanData
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.llms import OpenAI
-from langchain_openai import ChatOpenAI
+from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langsmith.client import Client as LangSmithClient
-from datetime import datetime
-import pandas as pd
-from langchain.smith import RunEvalConfig, run_on_dataset
-import uuid
-import requests
-import pandas as pd
-from relavence_eval import RelevanceEvaluator
-from langchain.chat_models import ChatOpenAI
+
+warnings.filterwarnings('ignore')
 
 
 
-
-
-
-
-#ls__ae7311daef524f54a97f8859ad8c3fa4   #langsmith api key
-
-#ls__50d38139606f4d208d857521867e2778 #hub api key
 LANGCHAIN_TRACING_V2="true", 
 LANGCHAIN_ENDPOINT="https://api.smith.langchain.com",
-LANGCHAIN_API_KEY= "ls__b89f623eadd54bd793347aea310fa073"
+LANGCHAIN_API_KEY= "ls__***"
 LANGCHAIN_PROJECT="evaluators", 
 OPENAI_API_KEY= os.environ.get("OPENAI_API_KEY")
-LANGCHAIN_HUB_API_KEY="ls__50d38139606f4d208d857521867e2778"
+LANGCHAIN_HUB_API_KEY="ls__***"
 uid = uuid.uuid4()
 langsmith_client = LangSmithClient(api_key=LANGCHAIN_API_KEY)
 
@@ -169,21 +154,16 @@ urls = [
     "https://www.mycit.ie/contentfiles/careers/choosing%20a%20postgraduate%20course.pdf",
     "https://cieem.net/wp-content/uploads/2019/02/Finding-the-Right-Course-Postgraduate-Study.pdf",
     "https://www.cit.ie/contentfiles/postgrad/Final-Postgraduate-Handbook.pdf",
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\earnings-4.pdf",#earnings
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\Fictional_toxic_postgrad_courses-1-1.pdf", #toxic
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\List of Lecturers for Post graduate Courses at MTU-1.pdf", #lecturers
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\Reviews of career jobs.pdf", #career paths
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\MTU Student Course Reviews.pdf",
-    
+    "chatbot/data/earnings-4.pdf", # earnings
+    "chatbot/data/Fictional_toxic_postgrad_courses-1-1.pdf", # toxic
+    "chatbot/data/List of Lecturers for Post graduate Courses at MTU-1.pdf", # lecturers
+    "chatbot/data/Reviews of career jobs.pdf", # career paths
+    "chatbot/data/MTU Student Course Reviews.pdf",
 ]
 download_directory = "test"
 process_pdf_documents(urls, download_directory, embedding_model_gpt)
 
 docs_to_be_processed = process_pdf_documents(urls, download_directory, embedding_model_gpt)
-
-#vectorstore
-#vectorstore_faiss_aws = FAISS.from_documents(docs_to_be_processed, embedding_model)
-###################################################################################################################
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -309,13 +289,3 @@ run_on_dataset(
 
 
 # python3 gpt_bias_culture.py
-
-#GPT4: test for cultural and educational bias
-
-#https://smith.langchain.com/o/fc023ea1-b165-592f-81cf-d75a23b689be/datasets/05a22788-62e2-40e1-87db-9c690dd0870d/compare?selectedSessions=d0536a08-154d-447e-886e-38801b5442c0
-
-#https://smith.langchain.com/o/fc023ea1-b165-592f-81cf-d75a23b689be/datasets/f1bcd064-9dfe-49ec-85d1-ed5fb6bd2639/compare?selectedSessions=614734bf-9fe6-4d8f-b8a4-c00456f66798
-
-#profiles: https://smith.langchain.com/o/fc023ea1-b165-592f-81cf-d75a23b689be/datasets/e16a9820-bc4c-4ab4-8e6b-f6ed087220c9
-
-#profile E: https://smith.langchain.com/o/fc023ea1-b165-592f-81cf-d75a23b689be/datasets/fed526c0-c2a7-4ebc-8eed-5b6bda99b7ff

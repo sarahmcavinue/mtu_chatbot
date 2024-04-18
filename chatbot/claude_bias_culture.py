@@ -1,35 +1,31 @@
-from langchain.llms.bedrock import Bedrock
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
-import os
 import boto3
-import warnings
-warnings.filterwarnings('ignore')
-from langchain.embeddings import BedrockEmbeddings
-from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
 import numpy as np
+import os
+import requests
+import uuid
+import warnings
+from clean_data import CleanData
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
+from langchain.embeddings import BedrockEmbeddings
+from langchain.llms.bedrock import Bedrock
+from langchain.memory import ConversationBufferMemory
+from langchain.prompts import PromptTemplate
+from langchain.smith import RunEvalConfig, run_on_dataset
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_community.vectorstores import FAISS
-from langchain.prompts import PromptTemplate
-import streamlit as st
-from clean_data import CleanData
-from langchain_community.llms import OpenAI
 from langsmith.client import Client as LangSmithClient
-from langchain.smith import RunEvalConfig, run_on_dataset
-import uuid
-import requests
-import pandas as pd
-from relavence_eval import RelevanceEvaluator
-from langchain.chat_models import ChatOpenAI
+warnings.filterwarnings('ignore')
+
 
 
 LANGCHAIN_TRACING_V2="true", 
 LANGCHAIN_ENDPOINT="https://api.smith.langchain.com",
-LANGCHAIN_API_KEY= "ls__b89f623eadd54bd793347aea310fa073"
+LANGCHAIN_API_KEY= "ls__***"
 LANGCHAIN_PROJECT="evaluators", 
 OPENAI_API_KEY= os.environ.get("OPENAI_API_KEY")
-LANGCHAIN_HUB_API_KEY="ls__50d38139606f4d208d857521867e2778"
+LANGCHAIN_HUB_API_KEY="ls__***"
 uid = uuid.uuid4()
 langsmith_client = LangSmithClient(api_key=LANGCHAIN_API_KEY)
 
@@ -94,12 +90,9 @@ question = "What courses are available in Data Science?"
 full_prompt = prompt_template.format(context=context, question=question)
 
 
-
-############################### Setting the AI model #########################################
-
 ############################### Setting the AI model #########################################
 # AWS session and client setup for Claude v2
-session = boto3.Session(profile_name='sarah')
+session = boto3.Session(profile_name='default')
 boto3_bedrock = session.client(
     service_name="bedrock-runtime",
     region_name="eu-central-1"
@@ -155,26 +148,21 @@ def process_pdf_documents(urls, download_directory, embedding_model):
             raise StopExecution
         else:
             raise error
-    return docs
-
 urls = [
     "https://www.mycit.ie/contentfiles/careers/choosing%20a%20postgraduate%20course.pdf",
     "https://cieem.net/wp-content/uploads/2019/02/Finding-the-Right-Course-Postgraduate-Study.pdf",
     "https://www.cit.ie/contentfiles/postgrad/Final-Postgraduate-Handbook.pdf",
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\earnings-4.pdf",#earnings
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\Fictional_toxic_postgrad_courses-1-1.pdf", #toxic
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\List of Lecturers for Post graduate Courses at MTU-1.pdf", #lecturers
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\Reviews of career jobs.pdf", #career paths
-    r"C:\Users\sarah\OneDrive\Desktop\bedrock\llm\data\MTU Student Course Reviews.pdf",
-    
+    "chatbot/data/earnings-4.pdf", # earnings
+    "chatbot/data/Fictional_toxic_postgrad_courses-1-1.pdf", # toxic
+    "chatbot/data/List of Lecturers for Post graduate Courses at MTU-1.pdf", # lecturers
+    "chatbot/data/Reviews of career jobs.pdf", # career paths
+    "chatbot/data/MTU Student Course Reviews.pdf",
 ]
 download_directory = "test"
 process_pdf_documents(urls, download_directory, embedding_model)
 
 docs_to_be_processed = process_pdf_documents(urls, download_directory, embedding_model)
 
-#vectorstore
-#vectorstore_faiss_aws = FAISS.from_documents(docs_to_be_processed, embedding_model)
 ###################################################################################################################
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -243,8 +231,7 @@ educational_cultural_bias_tests = [
     }
 ]
 #-------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
-# Assuming langsmith_client is already initialized with the necessary API key or credentials
+
 dataset_name = f"Dataset utilizing Claude 2 to test Cultural and Educational Bias- {str(uid)}"
 
 try:
@@ -320,12 +307,6 @@ run_on_dataset(
 )
 
 
-#testing cultural and educational bias Claude 2
+
 
 # python3 claude_bias_culture.py
-
-#https://smith.langchain.com/o/fc023ea1-b165-592f-81cf-d75a23b689be/datasets/5de203e1-5fc1-4b90-88c6-48e8327711bd
-
-#https://smith.langchain.com/o/fc023ea1-b165-592f-81cf-d75a23b689be/datasets/e16730c0-4792-491e-9009-af8e9667da77?paginationState=%7B%22pageIndex%22%3A0%2C%22pageSize%22%3A10%7D&chartedColumn=latency_p50
-
-#https://smith.langchain.com/o/fc023ea1-b165-592f-81cf-d75a23b689be/datasets/e16730c0-4792-491e-9009-af8e9667da77?paginationState=%7B%22pageIndex%22%3A0%2C%22pageSize%22%3A10%7D&chartedColumn=latency_p50
