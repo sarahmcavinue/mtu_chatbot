@@ -1,30 +1,30 @@
-# Standard library imports
+
 from datetime import datetime
 import os
 import uuid
 import warnings
-import boto3
 import numpy as np
 import requests
 from clean_data import CleanData
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
-from langchain.embeddings import BedrockEmbeddings
 from langchain.llms.bedrock import Bedrock
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from langchain.smith import RunEvalConfig, run_on_dataset
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.llms import OpenAI
 from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langsmith.client import Client as LangSmithClient
-
-# Ignore warnings configuration
 warnings.filterwarnings('ignore')
+
+
 
 LANGCHAIN_TRACING_V2="true", 
 LANGCHAIN_ENDPOINT="https://api.smith.langchain.com",
-LANGCHAIN_API_KEY= "ls__***"
+LANGCHAIN_API_KEY= "ls__****"
 LANGCHAIN_PROJECT="evaluators", 
 OPENAI_API_KEY= os.environ.get("OPENAI_API_KEY")
 LANGCHAIN_HUB_API_KEY="ls__***"
@@ -33,6 +33,7 @@ langsmith_client = LangSmithClient(api_key=LANGCHAIN_API_KEY)
 
 uid = uuid.uuid4()
 print("Created uid" , uid)
+
 
 
 
@@ -73,21 +74,15 @@ full_prompt = prompt_template.format(context=context, question=question)
 
 
 
-
 ############################### Setting the AI model #########################################
 
-# AWS session and client setup for Claude v2
-session = boto3.Session(profile_name="default")
-boto3_bedrock = session.client(
-    service_name="bedrock-runtime",
-    region_name="eu-central-1"
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
 )
 
-
-llm_model = Bedrock(model_id='anthropic.claude-v2', client=boto3_bedrock, model_kwargs={'max_tokens_to_sample':300, 'temperature':0.5})
-embedding_model = BedrockEmbeddings(model_id='amazon.titan-embed-text-v1', client=boto3_bedrock)
-
-
+#GPT-4
+llm_model_gpt = ChatOpenAI(temperature=0.5,model_name="gpt-4", max_tokens=300)
+embedding_model_gpt = OpenAIEmbeddings(model='text-embedding-ada-002')
 
 
 # data preparation
@@ -117,6 +112,7 @@ def process_pdf_documents(urls, download_directory, embedding_model):
     print(f'Average length among {len(docs)} documents (after split) is {avg_char_count_post} characters.')
 
     # Process embedding
+     # Process embedding
     try:
         sample_embedding = np.array(embedding_model.embed_query(docs[0].page_content))
         print("Sample embedding of a document chunk: ", sample_embedding)
@@ -124,32 +120,29 @@ def process_pdf_documents(urls, download_directory, embedding_model):
 
     except ValueError as error:
         if "AccessDeniedException" in str(error):
-            print(f"\x1b[41m{error}\
-            \nTo troubleshoot this issue please refer to the following resources.\
-             \nhttps://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html\
-             \nhttps://docs.aws.amazon.com/bedrock/latest/userguide/security-iam.html\x1b[0m\n")
-            class StopExecution(ValueError):
-                def _render_traceback_(self):
-                    pass
-            raise StopExecution
+            print("\x1b[41mError: Access to embedding model is denied.\
+              \nPlease check your access permissions or ensure that the embedding model is properly configured.\
+              \nFor troubleshooting, refer to the documentation or contact your administrator.\x1b[0m\n")
         else:
-            raise error
+            print("\x1b[41mError: Failed to process embedding.\
+              \nPlease check your input data or ensure that the embedding model is properly configured.\
+              \nFor troubleshooting, refer to the documentation or contact support.\x1b[0m\n")
     return docs
 
 urls = [
     "https://www.mycit.ie/contentfiles/careers/choosing%20a%20postgraduate%20course.pdf",
     "https://cieem.net/wp-content/uploads/2019/02/Finding-the-Right-Course-Postgraduate-Study.pdf",
     "https://www.cit.ie/contentfiles/postgrad/Final-Postgraduate-Handbook.pdf",
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\earnings-4.pdf", # earnings
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\Fictional_toxic_postgrad_courses-1-1.pdf", # toxic
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\List of Lecturers for Post graduate Courses at MTU-1.pdf", # lecturers
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\Reviews of career jobs.pdf", # career paths
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\MTU Student Course Reviews.pdf",
+    "chatbot/data/earnings-4.pdf", # earnings
+    "chatbot/data/Fictional_toxic_postgrad_courses-1-1.pdf", # toxic
+    "chatbot/data/List of Lecturers for Post graduate Courses at MTU-1.pdf", # lecturers
+    "chatbot/data/Reviews of career jobs.pdf", # career paths
+    "chatbot/data/MTU Student Course Reviews.pdf",
 ]
 download_directory = "test"
-process_pdf_documents(urls, download_directory, embedding_model)
+process_pdf_documents(urls, download_directory, embedding_model_gpt)
 
-docs_to_be_processed = process_pdf_documents(urls, download_directory, embedding_model)
+docs_to_be_processed = process_pdf_documents(urls, download_directory, embedding_model_gpt)
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -164,8 +157,8 @@ def load_chain():
 
 
     chain = ConversationalRetrievalChain.from_llm(
-        llm= llm_model, 
-        retriever=FAISS.from_documents(docs_to_be_processed, embedding_model).as_retriever(search_kwargs={'k': 4}),
+        llm= llm_model_gpt, 
+        retriever=FAISS.from_documents(docs_to_be_processed, embedding_model_gpt).as_retriever(search_kwargs={'k': 4}),
         memory=new_memory,
         verbose=True,
         chain_type="stuff",
@@ -179,6 +172,7 @@ def load_chain():
 
 #----------------------------------------------------------------------------------------
 
+# Dataset to test
 
 tests = [
      {
@@ -274,16 +268,21 @@ tests = [
     
 
 
-    
 ]
+
+
+
+
+
+
 
 #----------------------------------------------------------------------------------------
 
 def input_mapper(example):
     adapted_example = {
         "question": example["input"]["question"],
-        "chat_history": example["input"].get("chat_history", []),  # Assuming default if not present
-        "prediction": example["prediction"]["expected"]  # Correct extraction of prediction
+        "chat_history": example["input"].get("chat_history", []),  
+        "prediction": example["prediction"]["expected"]  
     }
     return adapted_example
 
@@ -293,7 +292,7 @@ def input_mapper(example):
 #----------------------------------------------------------------------------------------
 
 # Initialize dataset
-dataset_name = f"Claude COT and Relevance Test - {uuid.uuid4()}"
+dataset_name = f"GPT-4 COT and Relevance Test - {uuid.uuid4()}"
 try:
     # Create the dataset
     dataset = langsmith_client.create_dataset(dataset_name)
@@ -302,8 +301,6 @@ except requests.exceptions.HTTPError as e:
     print(f"Error creating dataset: {e}")
     exit()
 
-
-# Adjusted sequence
 adapted_tests = [input_mapper(test) for test in tests]
 
 
@@ -313,8 +310,8 @@ for adapted_test in adapted_tests:
     try:
         response = langsmith_client.create_example(
             dataset_id=dataset.id,
-            inputs={"question": adapted_test["question"], "chat_history": adapted_test["chat_history"]},  # Now correctly structured
-            outputs={"expected": adapted_test["prediction"]}  # Now correctly accesses 'prediction'
+            inputs={"question": adapted_test["question"], "chat_history": adapted_test["chat_history"]},  
+            outputs={"expected": adapted_test["prediction"]} 
         )
         print("Example added successfully.")
     except requests.exceptions.HTTPError as e:
@@ -322,25 +319,17 @@ for adapted_test in adapted_tests:
 
 
 #------------------------
-
 evaluation_config = RunEvalConfig(
+    input_key="question",
     evaluators=[
-       
         "qa",
         "context_qa",
         "cot_qa",
     ],
-    input_key="question"  # Specify the input key to be used by the evaluator
 )
 
 
-
-
-
-
 #----------------------------------
-
-
 
 
 run_on_dataset(
@@ -349,9 +338,9 @@ run_on_dataset(
     llm_or_chain_factory=load_chain,
     evaluation=evaluation_config,
     input_key="question",
-    project_name=f"QA_Claude_2_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+    project_name=f"QA_gpt4_{datetime.now().strftime('%Y%m%d%H%M%S')}",
     
 )
 
 
-# python3 claude_accuracy_cot_test.py
+# python3 gpt_accuracy_cot_test.py

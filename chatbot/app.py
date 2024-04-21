@@ -168,27 +168,26 @@ def process_pdf_documents(urls, download_directory, embedding_model):
 
     except ValueError as error:
         if "AccessDeniedException" in str(error):
-            print(f"\x1b[41m{error}\
-            \nTo troubleshoot this issue please refer to the following resources.\
-             \nhttps://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_access-denied.html\
-             \nhttps://docs.aws.amazon.com/bedrock/latest/userguide/security-iam.html\x1b[0m\n")
-            class StopExecution(ValueError):
-                def _render_traceback_(self):
-                    pass
-            raise StopExecution
+            print("\x1b[41mError: Access to embedding model is denied.\
+              \nPlease check your access permissions or ensure that the embedding model is properly configured.\
+              \nFor troubleshooting, refer to the documentation or contact your administrator.\x1b[0m\n")
         else:
-            raise error
+            print("\x1b[41mError: Failed to process embedding.\
+              \nPlease check your input data or ensure that the embedding model is properly configured.\
+              \nFor troubleshooting, refer to the documentation or contact support.\x1b[0m\n")
     return docs
+
 urls = [
     "https://www.mycit.ie/contentfiles/careers/choosing%20a%20postgraduate%20course.pdf",
     "https://cieem.net/wp-content/uploads/2019/02/Finding-the-Right-Course-Postgraduate-Study.pdf",
     "https://www.cit.ie/contentfiles/postgrad/Final-Postgraduate-Handbook.pdf",
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\earnings-4.pdf", # earnings
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\Fictional_toxic_postgrad_courses-1-1.pdf", # toxic
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\List of Lecturers for Post graduate Courses at MTU-1.pdf", # lecturers
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\Reviews of career jobs.pdf", # career paths
-    r"C:\Users\sarah\OneDrive\Desktop\mtu_chatbot\chatbot\data\MTU Student Course Reviews.pdf",
+    "chatbot/data/earnings-4.pdf", # earnings
+    "chatbot/data/Fictional_toxic_postgrad_courses-1-1.pdf", # toxic
+    "chatbot/data/List of Lecturers for Post graduate Courses at MTU-1.pdf", # lecturers
+    "chatbot/data/Reviews of career jobs.pdf", # career paths
+    "chatbot/data/MTU Student Course Reviews.pdf",
 ]
+
 
 download_directory = "test"
 process_pdf_documents(urls, download_directory, embedding_model)
@@ -265,7 +264,6 @@ if query := st.chat_input("Ask me anything"):
     st.session_state.messages.append({"role": "assistant", "content": response})
 
 
-#runwith: python3 -m streamlit run chat.py 
+#runwith: python3 -m streamlit run app.py  
 
 
-#C:\Users\sarah\OneDrive\Desktop\bedrock\venv\Scripts\activate
