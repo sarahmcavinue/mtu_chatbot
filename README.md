@@ -45,6 +45,10 @@ The Streamlit UI allows users to choose between GPT-4 or Claude 2 for generating
 Testing Framework
 Location
 
+### File Structure 
+
+![File Structure](images\file_structure.png)
+
 Tests are located under chatbot/langsmith_test with specific scripts dedicated to evaluating different aspects of model behavior:
 
     Accuracy and Bias Tests:
