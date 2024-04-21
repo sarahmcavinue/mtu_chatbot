@@ -38,9 +38,9 @@ pip install -r requirements.txt
 
 ##Running the Application
 
-##Navigate to chatbot\app.py and run the Streamlit UI:
+#Navigate to chatbot\app.py and run the Streamlit UI:
 python3 -m streamlit run chatbot/app.py
-
+```
 ## User Interface
 ### Streamlit UI
 -The Streamlit UI allows users to choose between GPT-4 or Claude 2 for generating responses and provides an interactive session through user input.
@@ -72,6 +72,7 @@ Key directories include:
 - `chatbot/app.py`: Main application file for the Streamlit UI.
 - `chatbot/test`: Used for processing proprietary files.
 - `chatbot/langsmith_test`: Contains scripts for testing various model aspects.
+
 
 ## Contribution
 Contributions to the MTU Chatbot are welcome. Please ensure to follow the existing code style and add unit tests for any new or changed functionality.
