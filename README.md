@@ -20,7 +20,8 @@ The MTU Chatbot leverages advanced technologies including Anthropic’s Claude 2
 - **Streamlit**
 
 
-![MTU Chatbot Architecture](images\acrhitecture.png)
+![MTU Chatbot Architecture](/images/architecture.png)
+
 
 
 ## Installation
@@ -40,45 +41,37 @@ pip install -r requirements.txt
 ##Navigate to chatbot\app.py and run the Streamlit UI:
 python3 -m streamlit run chatbot/app.py
 
-
+## User Interface
+### Streamlit UI
 The Streamlit UI allows users to choose between GPT-4 or Claude 2 for generating responses and provides an interactive session through user input.
-Testing Framework
-Location
 
-### File Structure 
+## Testing Framework
+Tests are located under `chatbot/langsmith_test` with specific scripts dedicated to evaluating different aspects of model behavior:
+
+###File Structure:
 
 ![File Structure](images\file_structure.png)
 
-Tests are located under chatbot/langsmith_test with specific scripts dedicated to evaluating different aspects of model behavior:
+### Accuracy and Bias Tests
+- `claude_accuracy_cot_test.py`: Contextual accuracy using chain of thought (COT) for Claude 2.
+- `gender_bias_claude.py`: Gender bias evaluation for Claude 2.
+- `gender_bias_gpt.py`: Gender bias evaluation for GPT-4.
+- `gpt_accuracy_cot_test.py`: Contextual accuracy for GPT-4.
+- `claude_bias_culture.py`, `gpt_bias_culture.py`: Cultural bias tests for both models.
 
-    Accuracy and Bias Tests:
-        claude_accuracy_cot_test.py: Contextual accuracy using chain of thought (COT) for Claude 2.
-        gender_bias_claude.py: Gender bias evaluation for Claude 2.
-        gender_bias_gpt.py: Gender bias evaluation for GPT-4.
-        gpt_accuracy_cot_test.py: Contextual accuracy for GPT-4.
-        claude_bias_culture.py, gpt_bias_culture.py: Cultural bias tests for both models.
-    Safety Tests:
-        safetybench_claude.py: Safety testing for Claude 2.
-        safetybench_gpt.py: Safety testing for GPT-4.
+### Safety Tests
+- `safetybench_claude.py`: Safety testing for Claude 2.
+- `safetybench_gpt.py`: Safety testing for GPT-4.
 
-Data Management
-Proprietary Data
+## Data Management
+### Proprietary Data
+Located in `chatbot/data`, this directory contains several proprietary PDF files such as student reviews, lecturer profiles, career progression data, fictional courses, and MTU’s prospectus handbook.
 
-Located in chatbot/data, the directory contains several proprietary PDF files such as student reviews, lecturer profiles, career progression data, fictional courses, and MTU’s prospectus handbook.
-Folder Structure
+## Folder Structure
+Key directories include:
+- `chatbot/app.py`: Main application file for the Streamlit UI.
+- `chatbot/test`: Used for processing proprietary files.
+- `chatbot/langsmith_test`: Contains scripts for testing various model aspects.
 
-Key directories:
-
-    chatbot/app.py: Main application file for the Streamlit UI.
-    chatbot/test: Used for processing proprietary files.
-    chatbot/langsmith_test: Contains scripts for testing various model aspects.
-
-Contribution
-
+## Contribution
 Contributions to the MTU Chatbot are welcome. Please ensure to follow the existing code style and add unit tests for any new or changed functionality.
-
-
-
-
-To use this, simply copy the content into a new text file, name it `README.md`, and place it in the root directory of your project. This file will be formatted correctly for display on platforms like GitHub, where Markdown is commonly used to format repository documentation.
-
