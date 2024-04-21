@@ -2,8 +2,9 @@
 # MTU Chatbot
 
 ## Overview
-The MTU Chatbot leverages advanced technologies including Anthropic’s Claude 2 and OpenAI’s GPT-4 to deliver tailored recommendations. These LLMs are hosted on AWS Bedrock API and OpenAI API respectively. The application utilizes exclusive proprietary data to enhance interactions through NLP and RAG techniques. The proprietary data is loaded with Langchain. This application enabled a comparative analysis of the LLMs with Langsmith is conducted focusing on performance, accuracy, bias, safety, cost, latency, and adaptability.
+The MTU Chatbot, developed at Munster Technological University (MTU), utilizes cutting-edge language models including Anthropic’s Claude 2 and OpenAI’s GPT-4, both hosted on AWS Bedrock API and OpenAI API, respectively. This advanced conversational AI tool interacts through a user-friendly interface to provide MTU postgraduate students with tailored recommendations and detailed information about postgraduate courses. Leveraging exclusive, proprietary data—including fictitious, unsafe courses and simulated course reviews—the chatbot enhances decision-making support through robust NLP and retrieval-augmented generation (RAG) techniques.
 
+A comprehensive comparative analysis using the Langsmith tool assesses these large language models (LLMs) on performance, accuracy, bias, safety, cost, latency, and adaptability. This evaluation plays a crucial role in refining the chatbot’s capabilities, ensuring it aligns with the highest standards of ethical AI practices while effectively supporting students in their educational endeavors.
 
 
 ## MTU Chatbot Architecture and Design
