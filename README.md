@@ -20,13 +20,13 @@ The MTU Chatbot leverages advanced technologies including Anthropic’s Claude 2
 - **Streamlit**
 
 
-![MTU Chatbot Architecture](/images/architecture.png)
+![MTU Chatbot Architecture](images/architecture.png)
 
 
 
 ## Installation
 ### Requirements
-Ensure you have a virtual environment set up for the project to manage dependencies:
+-Ensure you have a virtual environment set up for the project to manage dependencies:
 ```bash
 python -m venv mtu-env
 mtu-env\Scripts\activate
@@ -43,12 +43,12 @@ python3 -m streamlit run chatbot/app.py
 
 ## User Interface
 ### Streamlit UI
-The Streamlit UI allows users to choose between GPT-4 or Claude 2 for generating responses and provides an interactive session through user input.
+-The Streamlit UI allows users to choose between GPT-4 or Claude 2 for generating responses and provides an interactive session through user input.
 
 ## Testing Framework
 Tests are located under `chatbot/langsmith_test` with specific scripts dedicated to evaluating different aspects of model behavior:
 
-###File Structure:
+### File Structure:
 
 ![File Structure](images\file_structure.png)
 
